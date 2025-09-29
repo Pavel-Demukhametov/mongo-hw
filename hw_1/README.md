@@ -35,8 +35,7 @@ docker ps
 
 ## Подключение
 ~~~powershell
-docker run -it --rm --name mongo-client --network mongo-net -e HOME=/tmp `
-  mongo:5.0.4 mongosh --host mongo -u root -p Admin123 --authenticationDatabase admin
+docker run -it --rm --name mongo-client --network mongo-net mongo:5.0.4 sh -lc "HOME=/tmp mongosh --host mongo -u root -p Admin123 --authenticationDatabase admin"
 ~~~
 ![Скрин](images/4.jpg)
 
