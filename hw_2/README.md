@@ -88,7 +88,6 @@ function reduceStock(key, values) {
   return Array.sum(values);
 }
 
-// Коллекция totals_by_product { _id: <product>, value: <sum> }
 db.warehouses.mapReduce(mapStock, reduceStock, { out: { replace: "totals_by_product" } });
 
 db.totals_by_product.find().sort({ _id: 1 });
