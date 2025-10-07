@@ -10,8 +10,8 @@
 
 ## Схема данных
 - products: { _id, name, price }
-- warehouses: { _id, product, warehouse, instock }
-- Связь: warehouses.product = products.name
+- warehouses: { _id, productId, warehouse, instock }
+- Связь: warehouses.productId = products._id
 
 ---
 
@@ -43,7 +43,7 @@ let codes = ["A","B","C"];
 for (let wid = 1, limit = rnd(10, 20); wid <= limit; wid++) {
   db.warehouses.insertOne({
     _id: wid,
-    product: items[rnd(0, items.length - 1)],
+    productId: rnd(1, items.length),
     warehouse: codes[rnd(0, codes.length - 1)],
     instock: rnd(0, 200)
   });
@@ -61,15 +61,15 @@ for (let wid = 1, limit = rnd(10, 20); wid <= limit; wid++) {
 db.products.aggregate([
   { $lookup: {
       from: "warehouses",
-      localField: "name",
-      foreignField: "product",
+      localField: "_id",
+      foreignField: "productId",
       as: "wh"
   }},
   { $set: {
       totalInstock: { $sum: "$wh.instock" }
   }},
-  { $project: { _id: 0, name: 1, totalInstock: 1 } },
-  { $sort: { name: 1 } }
+  { $project: { _id: 0, id: "$_id", totalInstock: 1 } },
+  { $sort: { id: 1 } }
 ]);
 ~~~
 ### Скрин результата
@@ -79,11 +79,11 @@ db.products.aggregate([
 ## Map Reduce
 ~~~javascript
 
-// Получаем название и количество товара
+// Получаем id и количество товара
 function mapStock() {
-  if (this.product != null) emit(this.product, this.instock);
+  if (this.productId != null) emit(this.productId, this.instock);
 }
-// Сумма количества товаров по названию
+// Сумма количества товаров по id
 function reduceStock(key, values) {
   return Array.sum(values);
 }
