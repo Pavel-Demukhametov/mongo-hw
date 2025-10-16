@@ -1,0 +1,101 @@
+version: "3.9"
+
+networks:
+  mongo-net:
+    external: true
+    name: mongo-net
+
+services:
+  # Config servers (rsConfig: 27001/27002/27003)
+  cfg1:
+    image: mongo:8.0.14
+    container_name: cfg1
+    command: ["mongod","--configsvr","--replSet","rsConfig","--bind_ip_all","--port","27001"]
+    volumes: ["./mongo_data/cfg1:/data/db"]
+    networks: ["mongo-net"]
+    restart: unless-stopped
+
+  cfg2:
+    image: mongo:8.0.14
+    container_name: cfg2
+    command: ["mongod","--configsvr","--replSet","rsConfig","--bind_ip_all","--port","27002"]
+    volumes: ["./mongo_data/cfg2:/data/db"]
+    networks: ["mongo-net"]
+    restart: unless-stopped
+
+  cfg3:
+    image: mongo:8.0.14
+    container_name: cfg3
+    command: ["mongod","--configsvr","--replSet","rsConfig","--bind_ip_all","--port","27003"]
+    volumes: ["./mongo_data/cfg3:/data/db"]
+    networks: ["mongo-net"]
+    restart: unless-stopped
+
+  # Shard 1 (rsShard1: 27011/27012/27013)
+  sh1n1:
+    image: mongo:8.0.14
+    container_name: sh1n1
+    command: ["mongod","--shardsvr","--replSet","rsShard1","--bind_ip_all","--port","27011"]
+    volumes: ["./mongo_data/sh1n1:/data/db"]
+    networks: ["mongo-net"]
+    restart: unless-stopped
+
+  sh1n2:
+    image: mongo:8.0.14
+    container_name: sh1n2
+    command: ["mongod","--shardsvr","--replSet","rsShard1","--bind_ip_all","--port","27012"]
+    volumes: ["./mongo_data/sh1n2:/data/db"]
+    networks: ["mongo-net"]
+    restart: unless-stopped
+
+  sh1n3:
+    image: mongo:8.0.14
+    container_name: sh1n3
+    command: ["mongod","--shardsvr","--replSet","rsShard1","--bind_ip_all","--port","27013"]
+    volumes: ["./mongo_data/sh1n3:/data/db"]
+    networks: ["mongo-net"]
+    restart: unless-stopped
+
+  # Shard 2 (rsShard2: 27021/27022/27023)
+  sh2n1:
+    image: mongo:8.0.14
+    container_name: sh2n1
+    command: ["mongod","--shardsvr","--replSet","rsShard2","--bind_ip_all","--port","27021"]
+    volumes: ["./mongo_data/sh2n1:/data/db"]
+    networks: ["mongo-net"]
+    restart: unless-stopped
+
+  sh2n2:
+    image: mongo:8.0.14
+    container_name: sh2n2
+    command: ["mongod","--shardsvr","--replSet","rsShard2","--bind_ip_all","--port","27022"]
+    volumes: ["./mongo_data/sh2n2:/data/db"]
+    networks: ["mongo-net"]
+    restart: unless-stopped
+
+  sh2n3:
+    image: mongo:8.0.14
+    container_name: sh2n3
+    command: ["mongod","--shardsvr","--replSet","rsShard2","--bind_ip_all","--port","27023"]
+    volumes: ["./mongo_data/sh2n3:/data/db"]
+    networks: ["mongo-net"]
+    restart: unless-stopped
+
+  # Два mongos ( 27000; 27010)
+  mongos1:
+    image: mongo:8.0.14
+    container_name: mongos1
+    depends_on: [cfg1, cfg2, cfg3]
+    command: ["mongos","--configdb","rsConfig/cfg1:27001,cfg2:27002,cfg3:27003","--bind_ip_all","--port","27000"]
+    ports: ["27000:27000"]
+    networks: ["mongo-net"]
+    restart: unless-stopped
+
+  mongos2:
+    image: mongo:8.0.14
+    container_name: mongos2
+    depends_on: [cfg1, cfg2, cfg3]
+    command: ["mongos","--configdb","rsConfig/cfg1:27001,cfg2:27002,cfg3:27003","--bind_ip_all","--port","27000"]
+    ports: ["27010:27000"]
+    networks: ["mongo-net"]
+    restart: unless-stopped
