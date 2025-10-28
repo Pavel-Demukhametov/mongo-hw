@@ -129,8 +129,6 @@ db.createCollection("users", {
 })
 
 db.getCollectionInfos({ name: "users" })
-
-// Вывод созданных валидаторов
 testdb> db.getCollectionInfos({ name: "users" })
 [
   {
@@ -223,7 +221,7 @@ Additional information: {
 }
 
 
-// Ошибка с регулярным вывражением
+// Ошибка с регулярным выражением
 db.users.insertOne({
   name: "Li",
   email: "Li@example,com",
@@ -287,7 +285,7 @@ Additional information: {
 
 
 ## Экспорт/импорт данных
-использовался https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_hour.geojson
+Использовался датасет https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_hour.geojson
 ~~~sh
 # используем adminUser (dataUser не сможет добавить валидацию) 
 docker exec mongodb-server mongoimport `
@@ -517,8 +515,8 @@ db.runCommand({
    },
    validationAction: "error"
 })
-
 { ok: 1 }
+
 // Успешное добавление
 db.earthquakes.insertOne({
   type: 'Feature',
@@ -538,6 +536,7 @@ db.earthquakes.insertOne({
   geometry: { type: 'Point', coordinates: [0, 0, 0] },
   id: 'test001'
 })
+MongoServerError: Document failed validation...
 ~~~
 
 ~~~sh
